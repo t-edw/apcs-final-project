@@ -14,14 +14,16 @@ import javax.swing.*;
 
 public class Maze extends JComponent{
 	private JFrame frame;
-	public Maze(int num){
+	private JPanel pane;
+	public Maze(int num) throws IOException{
 		//use num later, randomized
 		frame = new JFrame();
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.setSize(750,750);
 		frame.setVisible(true);
 		Graphics g = frame.getGraphics();
-		//Image img = new BufferedImage(750,750,1,TYPE_BYTE_INDEXED);
-		
+		BufferedImage img = ImageIO.read(new File("T:\\APCS\\final project\\Final\\src\\maze1.png"));
+		g.drawImage(img, 0, 0, null);
 	}
 	public int getMazeSize(){
 		return frame.getHeight();
@@ -29,7 +31,7 @@ public class Maze extends JComponent{
 	public void setMazeSize(int size){
 		frame.setSize(750,750);
 	}
-	public static void main(String[] args){
+	public static void main(String[] args) throws IOException{
 		Maze test = new Maze(0);
 	}
 }
