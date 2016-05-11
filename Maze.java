@@ -44,6 +44,8 @@ public class Maze extends JComponent{
 			img = ImageIO.read(new File("src\\maze6.png"));
 		}
 		g.drawImage(img, 0, 0, 750, 750, null);
+		if(img.getRGB(1, 1)!=0)
+			System.out.println("wall");
 	}
 	public int getMazeSize(){
 		return frame.getHeight();
