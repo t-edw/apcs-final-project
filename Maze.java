@@ -85,17 +85,18 @@ public class Maze extends JFrame{
 				}
 			}
 		}
-		run();
+		run(checkWall());
 	}
-	public void run(){
-		boolean wall=false;
+	public void run(boolean wall){
 		if(!wall){
 			//move
 		}
 		else
 			System.out.println("You cannot go that way!");
-		if(!this.victory())
-			run();
+		if(!this.victory()){
+			//wall=checkWall();
+			run(checkWall());
+		}
 		win();
 	}
 	public boolean victory(){
