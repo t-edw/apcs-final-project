@@ -68,7 +68,6 @@ public class Maze extends JFrame{
 	}
 	public void start(int offset, int width){
 		int r=0,c=0;
-		int size;
 		Color myBlue = new Color(63,72,204);
 		for(int row=0;row<img.getWidth();row++){
 			for(int col=0;col<img.getHeight();col++){
@@ -80,12 +79,45 @@ public class Maze extends JFrame{
 //					}
 					g.setColor(Color.GREEN);
 					g.fillOval(r+width+offset,c+offset+width,width/2,width/2);
-					System.out.println("start found");
+//					System.out.println("start found");
 					row=img.getWidth()*10;
 					col=img.getHeight()*10;
 				}
 			}
 		}
+		run();
+	}
+	public void run(){
+		boolean wall=false;
+		if(!wall){
+			//move
+		}
+		else
+			System.out.println("You cannot go that way!");
+		if(!this.victory())
+			run();
+		win();
+	}
+	public boolean victory(){
+		Color myRed = new Color(237,28,36);
+		if(img.getRGB(0/*location again*/,0)==myRed.getRGB())
+			return true;
+		else
+			return false;
+	}
+	public void win(){
+		String[] victoryMessages = {"You did it!", "You made it!",
+									"Congratulations!",
+									"Congratulations, you made it out!",
+									"You win!","You are a winner!"};
+		Random r = new Random();
+		System.out.println(victoryMessages[r.nextInt(6)]);
+	}
+	public boolean checkWall(){
+		if(img.getRGB(0/*wherever the character is*/, 0)==Color.white.getRGB())
+			return false;
+		else
+			return true;
 	}
 	public int getMazeSize(){
 		return frame.getHeight();
