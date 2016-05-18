@@ -2,34 +2,33 @@ import javax.swing.JPanel;
 import javax.swing.JFrame;
 import java.awt.Graphics;
 import java.awt.Image;
-import javax.swing.JComponent;
 import java.io.*;
-import java.net.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.awt.geom.AffineTransform;
 import java.awt.image.*;
 import javax.imageio.*;
 import javax.swing.*;
 import java.util.*;
-import javax.swing.Action;
 
 public class Maze extends JFrame{
 	private JFrame frame;
-	private JPanel pane;
 	private BufferedImage img = null;
 	private Graphics g;
+	private Scanner q = new Scanner(System.in);
+	private Random rand = new Random();
+	private int[] loc = new int[2];
+	private int width=0;
+	private int offset=0;
 	public Maze() throws IOException{
-		Random rand = new Random();
-		//int num = rand.nextInt(6);
-		int num=3;
+		int num = rand.nextInt(6);
+//		int num=3;
 		frame = new JFrame();
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.setSize(950,950);
 		frame.setVisible(true);
 		g = frame.getGraphics();
-		int width=0;
-		int offset=0;
+		
+		//int width=0;
+		//int offset=0;
 		if(num==0){
 			img = ImageIO.read(new File("src\\maze1.png"));
 			width=32;
@@ -51,8 +50,8 @@ public class Maze extends JFrame{
 			offset=15;
 		}
 		else if(num==4){
-			//WHY
-			img = ImageIO.read(new File("src\\maze5.png"));
+			//fix the offset !!
+			img = ImageIO.read(new File("src\\maze5.bmp"));
 			width=10;
 		}
 		else{
@@ -63,11 +62,16 @@ public class Maze extends JFrame{
 		g.drawImage(img, 10, 30, 900, 900, null);
 //		if(img.getRGB(1, 1)!=0)
 //			System.out.println("wall");
-		start(offset,width);
 		
 	}
-	public void start(int offset, int width){
+	public void start() throws IOException{
 		int r=0,c=0;
+		BufferedImage[] characters = {ImageIO.read(new File("src\\character.fw.png")),ImageIO.read(new File("src\\ghost.png"))};
+		//BufferedImage transparent = ImageIO.read(new File("src\\character.fw.png"));
+		System.out.print("Select a character, 1 or 2. ");
+		int i = q.nextInt()-1;
+		Image transparent = characters[i];
+		transparent = transparent.getScaledInstance(width, width, Image.SCALE_DEFAULT);
 		Color myBlue = new Color(63,72,204);
 		for(int row=0;row<img.getWidth();row++){
 			for(int col=0;col<img.getHeight();col++){
@@ -78,7 +82,8 @@ public class Maze extends JFrame{
 //						offset++;
 //					}
 					g.setColor(Color.GREEN);
-					g.fillOval(r+width+offset,c+offset+width,width/2,width/2);
+					g.drawImage(transparent,r+width+offset,c+offset+width,null,null);
+					//g.fillOval(r+width+offset,c+offset+width,width/2,width/2);
 //					System.out.println("start found");
 					row=img.getWidth()*10;
 					col=img.getHeight()*10;
@@ -101,7 +106,7 @@ public class Maze extends JFrame{
 	}
 	public boolean victory(){
 		Color myRed = new Color(237,28,36);
-		if(img.getRGB(0/*location again*/,0)==myRed.getRGB())
+		if(img.getRGB(loc[0]+width,loc[1]+width)!=myRed.getRGB())
 			return true;
 		else
 			return false;
@@ -111,11 +116,10 @@ public class Maze extends JFrame{
 									"Congratulations!",
 									"Congratulations, you made it out!",
 									"You win!","You are a winner!"};
-		Random r = new Random();
-		System.out.println(victoryMessages[r.nextInt(6)]);
+		System.out.println(victoryMessages[rand.nextInt(6)]);
 	}
 	public boolean checkWall(){
-		if(img.getRGB(0/*wherever the character is*/, 0)==Color.white.getRGB())
+		if(img.getRGB(loc[0], loc[1])==Color.white.getRGB())
 			return false;
 		else
 			return true;
@@ -126,7 +130,22 @@ public class Maze extends JFrame{
 	public void setMazeSize(int size){
 		frame.setSize(750,750);
 	}
+	public void close(){
+		frame.dispose();
+	}
+	
 	public static void main(String[] args) throws IOException{
-		Maze test = new Maze();
+		boolean cont = true;
+		Maze test;
+		Scanner q = new Scanner(System.in);
+		while(cont){
+			test = new Maze();
+			test.start();
+			System.out.println("Play again? ");
+			if(q.nextLine().indexOf("y")==-1)
+				cont=false;
+			else
+				test.close();
+		}
 	}
 }
