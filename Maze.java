@@ -72,14 +72,14 @@ public class Maze extends JFrame{
 //			System.out.println("wall");
 		
 	}
+	public Image getImage() throws IOException{
+		Image transparent = ImageIO.read(new File("src\\ghost.png"));
+		transparent = transparent.getScaledInstance(width, width, Image.SCALE_DEFAULT);
+		return transparent;
+	}
 	public void start() throws IOException{
 		int r=0,c=0;
-		BufferedImage[] characters = {ImageIO.read(new File("src\\character.fw.png")),ImageIO.read(new File("src\\ghost.png"))};
-		//BufferedImage transparent = ImageIO.read(new File("src\\character.fw.png"));
-		System.out.print("Select a character, 1 or 2. ");
-		int i = q.nextInt()-1;
-		Image transparent = characters[i];
-		transparent = transparent.getScaledInstance(width, width, Image.SCALE_DEFAULT);
+		
 		Color myBlue = new Color(63,72,204);
 		for(int row=0;row<img.getWidth();row++){
 			for(int col=0;col<img.getHeight();col++){
@@ -90,7 +90,7 @@ public class Maze extends JFrame{
 //						offset++;
 //					}
 					g.setColor(Color.GREEN);
-					g.drawImage(transparent,r+width+offsetV,c+offsetH+width,null,null);
+					g.drawImage(this.getImage(),r+width+offsetV,c+offsetH+width,null,null);
 					//g.fillOval(r+width+offset,c+offset+width,width/2,width/2);
 //					System.out.println("start found");
 					row=img.getWidth()*10;
@@ -147,16 +147,18 @@ public class Maze extends JFrame{
 	
 	public static void main(String[] args) throws IOException{
 		boolean cont = true;
-		Maze test;
+		Maze test = new Maze();
 		Scanner q = new Scanner(System.in);
 		while(cont){
-			test = new Maze();
 			test.start();
 			System.out.println("Play again? ");
 			if(q.nextLine().indexOf("y")==-1)
 				cont=false;
-			else
+			else{
 				test.close();
+				test = new Maze();
+			}
 		}
+		test.close();
 	}
 }
