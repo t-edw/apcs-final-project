@@ -1,12 +1,18 @@
 import javax.swing.JPanel;
 import javax.swing.JFrame;
+
+import java.awt.Canvas;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.io.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.image.*;
+
 import javax.imageio.*;
 import javax.swing.*;
+
 import java.util.*;
 
 public class Maze extends JFrame{
@@ -27,7 +33,9 @@ public class Maze extends JFrame{
 		frame.setSize(950,950);
 		frame.setVisible(true);
 		g = frame.getGraphics();
-
+		
+		//int width=0;
+		//int offset=0;
 		if(num==0){
 			img = ImageIO.read(new File("src\\maze1.png"));
 			width=32;
@@ -53,6 +61,7 @@ public class Maze extends JFrame{
 			offsetH=offsetV;
 		}
 		else if(num==4){
+			//fix the offset !!
 			img = ImageIO.read(new File("src\\maze5.bmp"));
 			width=20;
 			offsetV=250;
@@ -65,24 +74,31 @@ public class Maze extends JFrame{
 			offsetH=offsetV;
 		}
 		g.drawImage(img, 10, 30, 900, 900, null);
+//		if(img.getRGB(1, 1)!=0)
+//			System.out.println("wall");
 		
-	}
-	public Image getImage() throws IOException{
-		Image transparent = ImageIO.read(new File("src\\ghost.png"));
-		transparent = transparent.getScaledInstance(width, width, Image.SCALE_DEFAULT);
-		return transparent;
 	}
 	public void start() throws IOException{
 		int r=0,c=0;
-		
+		BufferedImage[] characters = {ImageIO.read(new File("src\\character.fw.png")),ImageIO.read(new File("src\\ghost.png"))};
+		//BufferedImage transparent = ImageIO.read(new File("src\\character.fw.png"));
+		System.out.print("Select a character, 1 or 2. ");
+		int i = q.nextInt()-1;
+		Image transparent = characters[i];
+		transparent = transparent.getScaledInstance(width, width, Image.SCALE_DEFAULT);
 		Color myBlue = new Color(63,72,204);
 		for(int row=0;row<img.getWidth();row++){
 			for(int col=0;col<img.getHeight();col++){
 				if(img.getRGB(row, col)==myBlue.getRGB()){
 					r=row;
 					c=col;
+//					while(img.getRGB(row+38+offset,col+38+offset)!=Color.WHITE.getRGB()){
+//						offset++;
+//					}
 					g.setColor(Color.GREEN);
-					g.drawImage(this.getImage(),r+width+offsetV,c+offsetH+width,null,null);
+					g.drawImage(transparent,r+width+offsetV,c+offsetH+width,null,null);
+					//g.fillOval(r+width+offset,c+offset+width,width/2,width/2);
+//					System.out.println("start found");
 					row=img.getWidth()*10;
 					col=img.getHeight()*10;
 				}
@@ -97,6 +113,7 @@ public class Maze extends JFrame{
 		else
 			System.out.println("You cannot go that way!");
 		if(!this.victory()){
+			//wall=checkWall();
 			play(checkWall());
 		}
 		win();
@@ -136,18 +153,36 @@ public class Maze extends JFrame{
 	
 	public static void main(String[] args) throws IOException{
 		boolean cont = true;
-		Maze test = new Maze();
+		Canvas canvas;
+		Maze test;
 		Scanner q = new Scanner(System.in);
 		while(cont){
+			test = new Maze();
+			JPanel panel = (JPanel) test.getContentPane();
+			panel.setSize(800, 800);
+			canvas = new Canvas();
+			canvas.setBounds(0, 0, 800, 800);
+			canvas.setIgnoreRepaint(true);
+			panel.add(canvas);
+			canvas.addKeyListener(new KeyAdapter() {
+				public void keyPressed(KeyEvent e) {
+					move(e);
+				}
+			});
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame.pack();
+			frame.setVisible(true);
+			canvas.createBufferStrategy(2);
+			bufferStrategy = canvas.getBufferStrategy();
+			canvas.requestFocus();
+			img = ImageIO.read(new File("src\\maze1.png"));
+			bufferStrategy.getDrawGraphics().drawImage(img, 20, 30, 800, 800, null);
 			test.start();
 			System.out.println("Play again? ");
 			if(q.nextLine().indexOf("y")==-1)
 				cont=false;
-			else{
+			else
 				test.close();
-				test = new Maze();
-			}
 		}
-		test.close();
 	}
 }
