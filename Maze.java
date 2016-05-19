@@ -17,10 +17,11 @@ public class Maze extends JFrame{
 	private Random rand = new Random();
 	private int[] loc = new int[2];
 	private int width=0;
-	private int offset=0;
+	private int offsetV=0;
+	private int offsetH=0;
 	public Maze() throws IOException{
 		int num = rand.nextInt(6);
-//		int num=3;
+//		int num=4;
 		frame = new JFrame();
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.setSize(950,950);
@@ -32,32 +33,39 @@ public class Maze extends JFrame{
 		if(num==0){
 			img = ImageIO.read(new File("src\\maze1.png"));
 			width=32;
-			offset=5;
+			offsetV=5;
+			offsetH=offsetV;
 		}
 		else if(num==1){
 			img = ImageIO.read(new File("src\\maze2.png"));
 			width=30;
-			offset=10;
+			offsetV=10;
+			offsetH=offsetV;
 		}
 		else if(num==2){
 			img = ImageIO.read(new File("src\\maze3.png"));
 			width=25;
-			offset=10;
+			offsetV=12;
+			offsetH=offsetV;
 		}
 		else if(num==3){
 			img = ImageIO.read(new File("src\\maze4.png"));
 			width=30;
-			offset=15;
+			offsetV=15;
+			offsetH=offsetV;
 		}
 		else if(num==4){
 			//fix the offset !!
 			img = ImageIO.read(new File("src\\maze5.bmp"));
-			width=10;
+			width=20;
+			offsetV=250;
+			offsetH=22;
 		}
 		else{
 			img = ImageIO.read(new File("src\\maze6.png"));
-			width=56;
-			offset=-35;
+			width=40;
+			offsetV=-24;
+			offsetH=offsetV;
 		}
 		g.drawImage(img, 10, 30, 900, 900, null);
 //		if(img.getRGB(1, 1)!=0)
@@ -82,7 +90,7 @@ public class Maze extends JFrame{
 //						offset++;
 //					}
 					g.setColor(Color.GREEN);
-					g.drawImage(transparent,r+width+offset,c+offset+width,null,null);
+					g.drawImage(transparent,r+width+offsetV,c+offsetH+width,null,null);
 					//g.fillOval(r+width+offset,c+offset+width,width/2,width/2);
 //					System.out.println("start found");
 					row=img.getWidth()*10;
@@ -90,9 +98,9 @@ public class Maze extends JFrame{
 				}
 			}
 		}
-		run(checkWall());
+		play(checkWall());
 	}
-	public void run(boolean wall){
+	public void play(boolean wall){
 		if(!wall){
 			//move
 		}
@@ -100,7 +108,7 @@ public class Maze extends JFrame{
 			System.out.println("You cannot go that way!");
 		if(!this.victory()){
 			//wall=checkWall();
-			run(checkWall());
+			play(checkWall());
 		}
 		win();
 	}
@@ -132,6 +140,9 @@ public class Maze extends JFrame{
 	}
 	public void close(){
 		frame.dispose();
+	}
+	public int getCharSize(){
+		return width;
 	}
 	
 	public static void main(String[] args) throws IOException{
