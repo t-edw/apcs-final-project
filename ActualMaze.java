@@ -19,7 +19,8 @@ import javax.swing.JPanel;
 public class ActualMaze implements Runnable {
 	
 	JFrame frame;
-	int x = 20, y = 20, xa = 1, ya=1, side=20;
+	int mazeX=0, mazeY=0, mazeSize=900;
+	int x = 10, y = 30, xa = 1, ya=1, side=20;
 	Canvas canvas;
 	BufferStrategy bufferStrategy;
 	boolean running = true;
@@ -34,9 +35,9 @@ public class ActualMaze implements Runnable {
 		int num = rand.nextInt(6);
 		frame = new JFrame("Maze");
 		JPanel panel = (JPanel) frame.getContentPane();
-		panel.setSize(950, 950);
+		panel.setSize(900, 900);
 		canvas = new Canvas();
-		canvas.setBounds(0, 0, 950, 950);
+		canvas.setBounds(0, 0, 900, 900);
 		canvas.setIgnoreRepaint(true);
 		panel.add(canvas);
 		canvas.addKeyListener(new KeyAdapter() {
@@ -50,44 +51,45 @@ public class ActualMaze implements Runnable {
 		canvas.createBufferStrategy(2);
 		bufferStrategy = canvas.getBufferStrategy();
 		canvas.requestFocus();
+		num=0;
 		if(num==0){
 			img = ImageIO.read(new File("src\\maze1.png"));
-			width=32;
-			offsetV=5;
-			offsetH=offsetV;
+			width=20;
+			offsetV=40;
+			offsetH=20;
 		}
 		else if(num==1){
 			img = ImageIO.read(new File("src\\maze2.png"));
-			width=30;
+			width=25;
 			offsetV=10;
 			offsetH=offsetV;
 		}
 		else if(num==2){
 			img = ImageIO.read(new File("src\\maze3.png"));
-			width=25;
+			width=20;
 			offsetV=12;
 			offsetH=offsetV;
 		}
 		else if(num==3){
 			img = ImageIO.read(new File("src\\maze4.png"));
-			width=30;
+			width=25;
 			offsetV=15;
 			offsetH=offsetV;
 		}
 		else if(num==4){
 			//fix the offset !!
 			img = ImageIO.read(new File("src\\maze5.bmp"));
-			width=20;
+			width=15;
 			offsetV=250;
 			offsetH=22;
 		}
 		else{
 			img = ImageIO.read(new File("src\\maze6.png"));
-			width=40;
+			width=35;
 			offsetV=-24;
 			offsetH=offsetV;
 		}
-		bufferStrategy.getDrawGraphics().drawImage(img, 10, 0, 900, 900, null);
+		bufferStrategy.getDrawGraphics().drawImage(img, mazeX, mazeY, mazeSize, mazeSize, null);
 		start();
 	}
 	public void start() throws IOException{
@@ -102,37 +104,24 @@ public class ActualMaze implements Runnable {
 		for(int row=0;row<img.getWidth();row++){
 			for(int col=0;col<img.getHeight();col++){
 				if(img.getRGB(row, col)==myBlue.getRGB()){
-					x=row;
-					y=col;
+					x=row+offsetH;
+					y=col+offsetV;
 //					while(img.getRGB(row+38+offset,col+38+offset)!=Color.WHITE.getRGB()){
 //						offset++;
 //					}
 					//g.setColor(Color.GREEN);
 					//g.fillOval(r+width+offset,c+offset+width,width/2,width/2);
 //					System.out.println("start found");
-					row=img.getWidth()*10;
-					col=img.getHeight()*10;
+//					row=img.getWidth()*10;
+//					col=img.getHeight()*10;
 				}
 			}
 		}
-		play(checkWall());
-	}
-	public void play(boolean wall){
-		if(!wall){
-			//move
-		}
-		else
-			System.out.println("You cannot go that way!");
-		if(!this.victory()){
-			//wall=checkWall();
-			play(checkWall());
-		}
-		else
-			win();
+		run();
 	}
 	public boolean victory(){
 		Color myRed = new Color(237,28,36);
-		if(img.getRGB(x+width,y+width)!=myRed.getRGB())
+		if(img.getRGB(x+width,y+width)==myRed.getRGB())
 			return true;
 		else
 			return false;
@@ -144,22 +133,67 @@ public class ActualMaze implements Runnable {
 									"You win!","You are a winner!"};
 		System.out.println(victoryMessages[rand.nextInt(6)]);
 	}
-	public boolean checkWall(){
-		if(img.getRGB(x, y)==Color.white.getRGB()&&img.getRGB(x+width, y)==Color.white.getRGB()&&img.getRGB(x, y+width)==Color.white.getRGB()&&img.getRGB(x+width, y+width)==Color.white.getRGB())
-			return false;
-		else
-			return true;
+	public boolean[] checkWall(){
+		boolean[] walls = {false,false,false,false};
+		Color myWhite = new Color(255,255,255);
+//		//top
+//		for(int r=x;r<=x+width;r++){
+//			if(img.getRGB(r, y)!=myWhite.getRGB())
+//				walls[0]=true;
+//		}
+//		//right
+//		for(int c=y;c<=y+width;c++){
+//			if(img.getRGB(x+width, c)!=myWhite.getRGB())
+//				walls[3]=true;
+//		}
+//		//left
+//		for(int c=y;c<=y+width;c++){
+//			if(img.getRGB(x, c)!=myWhite.getRGB())
+//				walls[1]=true;
+//		}
+//		//bottom
+//		for(int r=x;r<=x+width;r++){
+//			if(img.getRGB(r, y+width)!=myWhite.getRGB())
+//				walls[2]=true;
+//		}
+		if(img.getRGB(x+width/2, y)!=myWhite.getRGB()){ //top
+			walls[0]=true;
+			System.out.println("wall up");
+		}
+		if(img.getRGB(x, y+width/2)!=myWhite.getRGB()){
+			walls[1]=true;
+			System.out.println("wall left");
+		}
+		if(img.getRGB(x+width/2, y+width)!=myWhite.getRGB()){
+			walls[2]=true;
+			System.out.println("wall down");
+		}
+		if(img.getRGB(x+width, y+width/2)!=myWhite.getRGB()){
+			walls[3]=true;
+			System.out.println("wall right");
+		}
+		return walls;
 	}
 	public void move(KeyEvent e) {
-		bufferStrategy.getDrawGraphics().clearRect(0, 0, 900, 900);
-		bufferStrategy.getDrawGraphics().drawImage(img, 0, 0, 900, 900, null);
-		if (!checkWall()) {
-			switch(e.getKeyCode()) {
-			case KeyEvent.VK_UP : y-=ya; break;
-			case KeyEvent.VK_DOWN : y+=ya; break;
-			case KeyEvent.VK_LEFT : x-=xa; break;
-			case KeyEvent.VK_RIGHT : x+=xa; break;
-			}
+		bufferStrategy.getDrawGraphics().clearRect(0, 0, 950, 950);
+		bufferStrategy.getDrawGraphics().drawImage(img, mazeX, mazeY, mazeSize, mazeSize, null);
+		boolean[] walls = new boolean[4];
+		walls = checkWall();
+		if (!walls[0]&&e.getKeyCode()==KeyEvent.VK_UP){ //top
+			y-=ya;
+			System.out.println("move");
+		}
+		if (!walls[1]&&e.getKeyCode()==KeyEvent.VK_LEFT){ //left
+			x-=xa;
+			System.out.println("move");
+		}
+		if (!walls[2]&&e.getKeyCode()==KeyEvent.VK_DOWN){ //down
+			y+=ya;
+			System.out.println("move");
+		}
+		if (!walls[3]&&e.getKeyCode()==KeyEvent.VK_RIGHT){ //right
+			x+=xa;
+			System.out.println("move");
 		}
 	}
 	@Override
@@ -177,7 +211,7 @@ public class ActualMaze implements Runnable {
 	}
 	
 	public void paint() throws IOException {
-		bufferStrategy.getDrawGraphics().drawImage(transparent,x+width+offsetV,y+offsetH+width,null,null);
+		bufferStrategy.getDrawGraphics().drawImage(transparent,x/*+width*/,y/*+width*/,null,null);
 		bufferStrategy.show();
 	}
 	
