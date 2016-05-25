@@ -20,7 +20,7 @@ public class ActualMaze implements Runnable {
 	
 	JFrame frame;
 	int mazeX=0, mazeY=0, mazeSize=900;
-	int x = 10, y = 30, xa = 1, ya=1, side=20;
+	int x = 0, y = 0, xa = 1, ya=1, side=20;
 	Canvas canvas;
 	BufferStrategy bufferStrategy;
 	boolean running = true;
@@ -55,8 +55,8 @@ public class ActualMaze implements Runnable {
 		if(num==0){
 			img = ImageIO.read(new File("src\\maze1.png"));
 			width=20;
-			offsetV=40;
-			offsetH=20;
+			offsetV=15;
+			offsetH=72;
 		}
 		else if(num==1){
 			img = ImageIO.read(new File("src\\maze2.png"));
@@ -89,7 +89,7 @@ public class ActualMaze implements Runnable {
 			offsetV=-24;
 			offsetH=offsetV;
 		}
-		bufferStrategy.getDrawGraphics().drawImage(img, mazeX, mazeY, mazeSize, mazeSize, null);
+		bufferStrategy.getDrawGraphics().drawImage(img, 0, 0, mazeSize, mazeSize, null);
 		start();
 	}
 	public void start() throws IOException{
@@ -104,8 +104,8 @@ public class ActualMaze implements Runnable {
 		for(int row=0;row<img.getWidth();row++){
 			for(int col=0;col<img.getHeight();col++){
 				if(img.getRGB(row, col)==myBlue.getRGB()){
-					x=row+offsetH;
-					y=col+offsetV;
+					x=row;
+					y=col;
 //					while(img.getRGB(row+38+offset,col+38+offset)!=Color.WHITE.getRGB()){
 //						offset++;
 //					}
@@ -156,27 +156,27 @@ public class ActualMaze implements Runnable {
 //			if(img.getRGB(r, y+width)!=myWhite.getRGB())
 //				walls[2]=true;
 //		}
-		if(img.getRGB(x+width/2, y)!=myWhite.getRGB()){ //top
+		if(img.getRGB(x+width/2-offsetH, y)!=myWhite.getRGB()){ //top
 			walls[0]=true;
 			System.out.println("wall up");
 		}
-		if(img.getRGB(x, y+width/2)!=myWhite.getRGB()){
+		if(img.getRGB(x-offsetH, y+width/2-offsetV)!=myWhite.getRGB()){
 			walls[1]=true;
 			System.out.println("wall left");
 		}
-		if(img.getRGB(x+width/2, y+width)!=myWhite.getRGB()){
+		if(img.getRGB(x+width/2-offsetH, y+width-offsetV)!=myWhite.getRGB()){
 			walls[2]=true;
 			System.out.println("wall down");
 		}
-		if(img.getRGB(x+width, y+width/2)!=myWhite.getRGB()){
+		if(img.getRGB(x+width-offsetH, y+width/2-offsetV)!=myWhite.getRGB()){
 			walls[3]=true;
 			System.out.println("wall right");
 		}
 		return walls;
 	}
 	public void move(KeyEvent e) {
-		bufferStrategy.getDrawGraphics().clearRect(0, 0, 950, 950);
-		bufferStrategy.getDrawGraphics().drawImage(img, mazeX, mazeY, mazeSize, mazeSize, null);
+		bufferStrategy.getDrawGraphics().clearRect(0, 0, 900, 900);
+		bufferStrategy.getDrawGraphics().drawImage(img, 0, 0, mazeSize, mazeSize, null);
 		boolean[] walls = new boolean[4];
 		walls = checkWall();
 		if (!walls[0]&&e.getKeyCode()==KeyEvent.VK_UP){ //top
@@ -211,7 +211,7 @@ public class ActualMaze implements Runnable {
 	}
 	
 	public void paint() throws IOException {
-		bufferStrategy.getDrawGraphics().drawImage(transparent,x/*+width*/,y/*+width*/,null,null);
+		bufferStrategy.getDrawGraphics().drawImage(transparent, x, y,null,null);
 		bufferStrategy.show();
 	}
 	
