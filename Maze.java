@@ -14,7 +14,13 @@ import java.util.Scanner;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
+/**Maze.java
+ * Joshua Sathyaraj and Tamsin Edwards
+ * Period G
+ * June 1, 2016
+ * 
+ * Creates and plays a maze game
+ */
 public class Maze extends JFrame implements Runnable {
 	private JPanel panel;
 	private Canvas canvas;
@@ -26,7 +32,10 @@ public class Maze extends JFrame implements Runnable {
 	private Pixel[][] pixels;
 	private int x, y, a, width, mazeSize, factor, dim;
 	private boolean running;
+	private KeyAdapter l;
 	
+	//constructor
+	//creates the maze and draws the character initially
 	public Maze() throws IOException{
 		super("Maze");
 		x=5; y=5; a=1; width=25; mazeSize=900; dim=20; factor=mazeSize/dim;
@@ -42,11 +51,12 @@ public class Maze extends JFrame implements Runnable {
 		canvas.setSize(mazeSize, mazeSize);
 		canvas.setIgnoreRepaint(true);
 		panel.add(canvas);
-		canvas.addKeyListener(new KeyAdapter() {
+		l = new KeyAdapter(){
 			public void keyPressed(KeyEvent e) {
 				move(e);
 			}
-		});
+		};
+		canvas.addKeyListener(l);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.pack();
 		this.setVisible(true);
@@ -59,66 +69,80 @@ public class Maze extends JFrame implements Runnable {
 		makeMaze(0, 0, dim-2, dim-2);
 		drawCharacter();
 	}
-	//done
+	//method: boolean[] checkWall()
+	//checks for contact with a wall on any side of the character
+	//using the array of pixels filled when the maze is created
 	public boolean[] checkWall(){
 		boolean[] walls = {false,false,false,false};
 		for (int i=0; i<width; i++) {
 			if(pixels[x+i][y-1].isBlack()){ //top
 				walls[0]=true;
-				System.out.println("wall up");
+				//System.out.println("wall up");
 			}
 			if(pixels[x-1][y+i].isBlack()){//left
 				walls[1]=true;
-				System.out.println("wall left");
+				//System.out.println("wall left");
 			}
 			if(pixels[x+i][y+width+1].isBlack()){ //down
 				walls[2]=true;
-				System.out.println("wall down");
+				//System.out.println("wall down");
 			}
 			if(pixels[x+width+1][y+i].isBlack()){ //right
 				walls[3]=true;
-				System.out.println("wall right");
+				//System.out.println("wall right");
 			}
 		}
 		return walls;
 	}
-	//done
+	//method: void move(KeyEvent e)
+	//moves the character depending on which arrow key 
+	//is pressed by the user
 	public void move(KeyEvent e) {
 		boolean[] walls = new boolean[4];
 		walls = checkWall();
 		if (!walls[0]&&e.getKeyCode()==KeyEvent.VK_UP){ //top
 			y-=a;
-			System.out.println("move");
+			//System.out.println("move");
 		}
 		if (!walls[1]&&e.getKeyCode()==KeyEvent.VK_LEFT){ //left
 			x-=a;
-			System.out.println("move");
+			//System.out.println("move");
 		}
 		if (!walls[2]&&e.getKeyCode()==KeyEvent.VK_DOWN){ //down
 			y+=a;
-			System.out.println("move");
+			//System.out.println("move");
 		}
 		if (!walls[3]&&e.getKeyCode()==KeyEvent.VK_RIGHT){ //right
 			x+=a;
-			System.out.println("move");
+			//System.out.println("move");
 		}
 		checkVictory();
 	}
-	//done
+	//method: void checkVictory()
+	//checks whether the character has reached the end 
+	//(the bottom right corner) of the maze each time
+	//the character is moved
 	public void checkVictory() {
-		if (x+width==mazeSize-2&&y+width==mazeSize-2)
+		if (x+width==mazeSize-2&&y+width==mazeSize-2){
+			running = false;
+			canvas.removeKeyListener(l);
 			win();
+		}
 	}
-	//done
+	//method: void win()
+	//delivers a random victory message when called 
+	//upon reaching the end of the maze
 	public void win(){
-		running = false;
 		String[] victoryMessages = {"You did it!", "You made it!",
 									"Congratulations!",
 									"Congratulations, you made it out!",
 									"You win!","You are a winner!"};
 		System.out.println(victoryMessages[rand.nextInt(victoryMessages.length)]);
 	}
-	//done
+	//method: void drawCharacter()
+	//takes user input for the character they would
+	//like to play as, and then draws the character
+	//on the canvas
 	public void drawCharacter() throws IOException {
 		Scanner q = new Scanner(System.in);
 		BufferedImage[] characters = {ImageIO.read(new File("src\\character.fw.png")),ImageIO.read(new File("src\\ghost.png"))};
@@ -127,7 +151,10 @@ public class Maze extends JFrame implements Runnable {
 		transparent = characters[i];
 		transparent = transparent.getScaledInstance(width, width, Image.SCALE_DEFAULT);
 	}
-	//done
+	//method: void makeMaze(int minRowIndex, int minColIndex,
+	//int maxRowIndex, int maxColIndex)
+	//builds the maze by calling splutHorizontal or splitVertical, which
+	//is randomized by the getSplitDir method
 	public void makeMaze(int minRowIndex, int minColIndex, int maxRowIndex, int maxColIndex) {
 		String split = getSplitDir(minRowIndex, minColIndex, maxRowIndex, maxColIndex);
 		if (split.equals("VERTICAL"))
@@ -135,7 +162,10 @@ public class Maze extends JFrame implements Runnable {
 		else
 			splitHorizontal(minRowIndex, minColIndex, maxRowIndex, maxColIndex);
 	}
-	//done
+	//method: void splitVertical(int minRowIndex, int minColIndex, 
+	//int maxRowIndex, int maxColIndex)
+	//splits the maze by drawing a vertical line at a random index
+	//which correspond to 45 pixel intervals on the canvas
 	public void splitVertical(int minRowIndex, int minColIndex, int maxRowIndex, int maxColIndex) {
 		int colDif = maxColIndex-minColIndex;
 		int rowDif = maxRowIndex-minRowIndex;
@@ -154,7 +184,10 @@ public class Maze extends JFrame implements Runnable {
 			makeMaze(minRowIndex, col+1, maxRowIndex, maxColIndex);
 		}
 	}
-	//done
+	//method: void splitHorizontal(int minRowIndex, int minColIndex, 
+	//int maxRowIndex, int maxColIndex)
+	//splits the maze by drawing a horizontal line at a random index
+	//which correspond to 45 pixel intervals on the canvas
 	public void splitHorizontal(int minRowIndex, int minColIndex, int maxRowIndex, int maxColIndex) {
 		int rowDif = maxRowIndex-minRowIndex;
 		int colDif = maxColIndex-minColIndex;
@@ -173,7 +206,10 @@ public class Maze extends JFrame implements Runnable {
 			makeMaze(row+1, minColIndex, maxRowIndex, maxColIndex);
 		}
 	}
-	//done
+	//method: String getSplitDir(int minRowIndex, int minColIndex, 
+	//int maxRowIndex, int maxColIndex)
+	//determines whether to split the maze horizontally
+	//or vertically
 	public String getSplitDir(int minRowIndex, int minColIndex, int maxRowIndex, int maxColIndex) {
 		if (maxColIndex-minColIndex>maxRowIndex-minRowIndex) {
 			return "VERTICAL";
@@ -190,7 +226,9 @@ public class Maze extends JFrame implements Runnable {
 			
 		}
 	}
-	//done
+	//method: void fillRowColArr()
+	//adds the possible intervals the splitting lines can be drawn at
+	//to separate array lists for use in the split methods
 	public void fillRowColArr() {
 		cols = new ArrayList<Integer>();
 		rows = new ArrayList<Integer>();
@@ -199,7 +237,10 @@ public class Maze extends JFrame implements Runnable {
 			rows.add((factor*i)-1);
 		}
 	}
-	//done
+	//method: void fillPixelArray()
+	//fills the two dimensional array pixels with Pixel objects,
+	//setting the isBlack value for the edges to true, and 
+	//false for all other pixels 
 	public void fillPixelArray() {
 		pixels = new Pixel[mazeSize][mazeSize];
 		for (int i=0; i<mazeSize; i++) {
@@ -211,13 +252,15 @@ public class Maze extends JFrame implements Runnable {
 			}
 		}
 	}
-	//done
+	//method: void paint()
+	//repaints the character
 	public void paint() throws IOException {
 		g.clearRect(x, y, width, width);
 		g.drawImage(transparent, x, y,null,null);
 		bufferStrategy.show();
 	}
-	//done
+	//method: void run()
+	//runs the game
 	@Override
 	public void run() {
 		while(running = true) {
