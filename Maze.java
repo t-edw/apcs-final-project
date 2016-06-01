@@ -14,12 +14,12 @@ import java.util.Scanner;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-/**Maze.java
- * Joshua Sathyaraj and Tamsin Edwards
- * Period G
- * June 1, 2016
+/** Maze.java
+ *  Joshua Sathyaraj and Tamsin Edwards
+ *  Period G
+ *  June 1, 2016
  * 
- * Creates and plays a maze game
+ *  Creates and plays a maze game
  */
 public class Maze extends JFrame implements Runnable {
 	private JPanel panel;
