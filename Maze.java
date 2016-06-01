@@ -1,4 +1,6 @@
 import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.KeyAdapter;
@@ -13,7 +15,9 @@ import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 /**Maze.java
  * Joshua Sathyaraj and Tamsin Edwards
  * Period G
@@ -30,16 +34,18 @@ public class Maze extends JFrame implements Runnable {
 	private Random rand;
 	private ArrayList<Integer> cols, rows;
 	private Pixel[][] pixels;
-	private int x, y, a, width, mazeSize, factor, dim;
+	private int x, y, a, width, mazeSize, factor, dim, keyCount;
 	private boolean running;
 	private KeyAdapter l;
+	private Timer timer;
 	
 	//constructor
 	//creates the maze and draws the character initially
 	public Maze() throws IOException{
 		super("Maze");
-		x=5; y=5; a=1; width=25; mazeSize=900; dim=20; factor=mazeSize/dim;
+		x=5; y=5; a=1; width=25; mazeSize=900; dim=20; factor=mazeSize/dim; keyCount=0;
 		rand = new Random();
+		timer = new Timer();
 		fillPixelArray();
 		fillRowColArr();
 		running=true;
@@ -50,9 +56,12 @@ public class Maze extends JFrame implements Runnable {
 		canvas = new Canvas();
 		canvas.setSize(mazeSize, mazeSize);
 		canvas.setIgnoreRepaint(true);
+		canvas.setBackground(new Color(54, 179, 222));
 		panel.add(canvas);
 		l = new KeyAdapter(){
 			public void keyPressed(KeyEvent e) {
+				keyCount++;
+				if (keyCount==1) timer.setStop(false);
 				move(e);
 			}
 		};
@@ -125,6 +134,7 @@ public class Maze extends JFrame implements Runnable {
 	public void checkVictory() {
 		if (x+width==mazeSize-2&&y+width==mazeSize-2){
 			running = false;
+			timer.setStop(true);
 			canvas.removeKeyListener(l);
 			win();
 		}
@@ -144,10 +154,9 @@ public class Maze extends JFrame implements Runnable {
 	//like to play as, and then draws the character
 	//on the canvas
 	public void drawCharacter() throws IOException {
-		Scanner q = new Scanner(System.in);
-		BufferedImage[] characters = {ImageIO.read(new File("src\\character.fw.png")),ImageIO.read(new File("src\\ghost.png"))};
-		System.out.print("Select a character, 1 or 2. ");
-		int i = q.nextInt()-1;
+		BufferedImage[] characters = {ImageIO.read(new File("src\\clyde.png")),ImageIO.read(new File("src\\ghost.png")),
+				ImageIO.read(new File("src\\inky.png")),ImageIO.read(new File("src\\blinky.png")),ImageIO.read(new File("src\\ghost2.png"))};
+		int i = rand.nextInt(characters.length);
 		transparent = characters[i];
 		transparent = transparent.getScaledInstance(width, width, Image.SCALE_DEFAULT);
 	}
@@ -268,15 +277,11 @@ public class Maze extends JFrame implements Runnable {
 				paint();
 			} catch (IOException e1) {
 			}
-            try {
-                Thread.sleep(0, 1);
-            } catch (InterruptedException e) {
-            }
 		}
 	}
 	//main
 	public static void main(String[] args) throws IOException {
 		Maze maze = new Maze();
-		new Thread(maze).start();
+		maze.run();
 	}
 }
