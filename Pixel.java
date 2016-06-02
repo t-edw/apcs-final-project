@@ -7,20 +7,19 @@
  */
 public class Pixel {
 	private int x, y; private boolean isBlack;
-	
-	//contructor
+	//constructor
 	//creates a pixel object
-	public Pixel(int x, int y, boolean isBlack) {
-		this.x=x; this.y=y; this.isBlack=isBlack;
-	}
-	//method: void setBlack(boolean isBlack)
-	//changes the value of isBlack for the pixel object
-	public void setBlack(boolean isBlack) {
-		this.isBlack=isBlack;
-	}
-	//method: boolean isBlack()
-	//returns the value of isBlack for the current pixel
-	public boolean isBlack() {
-		return isBlack;
-	}
+	public Pixel(int x, int y, boolean isBlack) {this.x=x; this.y=y; this.isBlack=isBlack;}
+	//returns value of x
+	public int getX() {return x;}
+	//sets the value of x to the new value
+	public void setX(int x) {this.x=x;}
+	//returns the value of y
+	public int getY() {return y;}
+	//sets the value of y to the new value
+	public void setY(int y) {this.y=y;}
+	//sets the value of isBlack to the new value
+	public void setBlack(boolean isBlack) {this.isBlack=isBlack;}
+	//returns the value of isBlack
+	public boolean isBlack() {return isBlack;}
 }
