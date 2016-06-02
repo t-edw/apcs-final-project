@@ -1,17 +1,16 @@
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferStrategy;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -25,6 +24,7 @@ import javax.swing.JTextField;
  * 
  * Creates and plays a maze game
  */
+@SuppressWarnings("serial")
 public class Maze extends JFrame implements Runnable {
 	private JPanel panel;
 	private Canvas canvas;
@@ -34,29 +34,59 @@ public class Maze extends JFrame implements Runnable {
 	private Random rand;
 	private ArrayList<Integer> cols, rows;
 	private Pixel[][] pixels;
-	private int x, y, a, width, mazeSize, factor, dim, keyCount;
+	private String[] characters={"blinky", "clyde", "ghost", "ghost2", "inky"};
+	private int x, y, a, width, mazeSize, panelSize, factor, dim, keyCount, timerSize, timerGap;
 	private boolean running;
 	private KeyAdapter l;
 	private Timer timer;
-	
+	private JTextField textField;
+	private JLabel textLabel;
 	//constructor
 	//creates the maze and draws the character initially
 	public Maze() throws IOException{
 		super("Maze");
-		x=5; y=5; a=1; width=25; mazeSize=900; dim=20; factor=mazeSize/dim; keyCount=0;
+		x=5; y=5; a=1; width=25; mazeSize=900; dim=20; factor=mazeSize/dim; 
+		keyCount=0; panelSize=mazeSize+300; timerSize=125; timerGap=10;
 		rand = new Random();
-		timer = new Timer();
 		fillPixelArray();
 		fillRowColArr();
 		running=true;
 		panel = (JPanel) this.getContentPane();
-		panel.setSize(mazeSize, mazeSize);
+		panel.setSize(panelSize, mazeSize);
+		panel.setBackground(new Color(54, 222, 179));
 		panel.setVisible(true);
-		//canvas stuff
+		timer = new Timer();
+		panel.add(timer);
+		timer.setLocation(mazeSize+timerGap, 0);
+		timer.setSize(timerSize, timerSize);
+		timer.setVisible(true);
+		textField = new JTextField(20);
+		textField.setFont(new Font("Comic Sans MS", Font.ITALIC, 20));
+		textField.setSize((panelSize-(mazeSize+timerGap))-timerGap, timerSize);
+		textLabel = new JLabel("<html>ENTER CHARACTER NAME<br>Characters:<br>blinky<br>clyde<br>ghost<br>ghost2<br>inky</html>");
+		textLabel.setVerticalAlignment(JLabel.TOP);
+		textLabel.setSize(panelSize-mazeSize-timerGap, mazeSize-timerSize*2);
+		textLabel.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
+		panel.add(textField);
+		panel.add(textLabel);
+		textField.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode()==KeyEvent.VK_ENTER) {
+					try {
+						checkCommand(textField.getText());
+					} catch (IOException e1) {
+					}
+					textField.setText("");
+				}
+			}
+		});
+		textField.setVisible(true);
+		textField.setLocation(mazeSize+timerGap, timerSize+timerGap);
+		textLabel.setLocation(mazeSize+timerGap, timerSize*2+timerGap*2);
 		canvas = new Canvas();
-		canvas.setSize(mazeSize, mazeSize);
+		canvas.setBounds(0, 0, mazeSize, mazeSize);
+		canvas.setMaximumSize(new Dimension(mazeSize, mazeSize));
 		canvas.setIgnoreRepaint(true);
-		canvas.setBackground(new Color(54, 179, 222));
 		panel.add(canvas);
 		l = new KeyAdapter(){
 			public void keyPressed(KeyEvent e) {
@@ -67,7 +97,7 @@ public class Maze extends JFrame implements Runnable {
 		};
 		canvas.addKeyListener(l);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.pack();
+		this.setSize(panelSize, mazeSize+47);
 		this.setVisible(true);
 		canvas.createBufferStrategy(2);
 		bufferStrategy = canvas.getBufferStrategy();
@@ -76,7 +106,15 @@ public class Maze extends JFrame implements Runnable {
 		g = bufferStrategy.getDrawGraphics();
 		g.drawRect(0, 0, mazeSize-1, mazeSize-1);
 		makeMaze(0, 0, dim-2, dim-2);
-		drawCharacter();
+	}
+	//checks if what was typed into textField is a character name
+	public void checkCommand(String com) throws IOException {
+		boolean isCharacter=false;
+		for (String str : characters)
+			if (str.equals(com))
+				isCharacter=true;
+		if (isCharacter) 
+			drawCharacter();
 	}
 	//method: boolean[] checkWall()
 	//checks for contact with a wall on any side of the character
@@ -86,19 +124,15 @@ public class Maze extends JFrame implements Runnable {
 		for (int i=0; i<width; i++) {
 			if(pixels[x+i][y-1].isBlack()){ //top
 				walls[0]=true;
-				//System.out.println("wall up");
 			}
 			if(pixels[x-1][y+i].isBlack()){//left
 				walls[1]=true;
-				//System.out.println("wall left");
 			}
 			if(pixels[x+i][y+width+1].isBlack()){ //down
 				walls[2]=true;
-				//System.out.println("wall down");
 			}
 			if(pixels[x+width+1][y+i].isBlack()){ //right
 				walls[3]=true;
-				//System.out.println("wall right");
 			}
 		}
 		return walls;
@@ -111,19 +145,15 @@ public class Maze extends JFrame implements Runnable {
 		walls = checkWall();
 		if (!walls[0]&&e.getKeyCode()==KeyEvent.VK_UP){ //top
 			y-=a;
-			//System.out.println("move");
 		}
 		if (!walls[1]&&e.getKeyCode()==KeyEvent.VK_LEFT){ //left
 			x-=a;
-			//System.out.println("move");
 		}
 		if (!walls[2]&&e.getKeyCode()==KeyEvent.VK_DOWN){ //down
 			y+=a;
-			//System.out.println("move");
 		}
 		if (!walls[3]&&e.getKeyCode()==KeyEvent.VK_RIGHT){ //right
 			x+=a;
-			//System.out.println("move");
 		}
 		checkVictory();
 	}
@@ -145,20 +175,16 @@ public class Maze extends JFrame implements Runnable {
 	public void win(){
 		String[] victoryMessages = {"You did it!", "You made it!",
 									"Congratulations!",
-									"Congratulations, you made it out!",
+									"Congratulations,<html><brhtml>you made it out!",
 									"You win!","You are a winner!"};
-		System.out.println(victoryMessages[rand.nextInt(victoryMessages.length)]);
+		textField.setText(victoryMessages[rand.nextInt(victoryMessages.length)]);
 	}
 	//method: void drawCharacter()
 	//takes user input for the character they would
 	//like to play as, and then draws the character
 	//on the canvas
 	public void drawCharacter() throws IOException {
-		BufferedImage[] characters = {ImageIO.read(new File("src\\clyde.png")),ImageIO.read(new File("src\\ghost.png")),
-				ImageIO.read(new File("src\\inky.png")),ImageIO.read(new File("src\\blinky.png")),ImageIO.read(new File("src\\ghost2.png"))};
-		int i = rand.nextInt(characters.length);
-		transparent = characters[i];
-		transparent = transparent.getScaledInstance(width, width, Image.SCALE_DEFAULT);
+		transparent=ImageIO.read(new File("src\\"+textField.getText()+".png")).getScaledInstance(width, width, Image.SCALE_DEFAULT);
 	}
 	//method: void makeMaze(int minRowIndex, int minColIndex,
 	//int maxRowIndex, int maxColIndex)
@@ -272,7 +298,7 @@ public class Maze extends JFrame implements Runnable {
 	//runs the game
 	@Override
 	public void run() {
-		while(running = true) {
+		while(running) {
 			try {
 				paint();
 			} catch (IOException e1) {
